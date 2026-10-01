@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Certificate Stack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap">
+<style>
+/* Layout: a cascading stack of seminar "covers" that slides along one row, tiny grotesk caption underneath — lifted from the inspo. Single light look by design. */
+:root{
+  --paper:#fcfbf6;
+  --ink:#141412;
+  --mute:#8a887f;
+  --line:#e4e2d9;
+  --sheet:#fdfcf8;
+  --sans:"Instrument Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --serif:"Cormorant Garamond","Times New Roman",serif;
+  --k:1;
+  --ease:cubic-bezier(.72,0,.18,1);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+.art img,.frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.lb-body .frame.real{aspect-ratio:auto;background:transparent}
+.lb-body .frame.real img{position:static;height:auto;max-height:calc(100vh - 150px);object-fit:contain;margin:0 auto}
+.certimg{display:block;width:100%;height:auto;max-height:calc(100vh - 150px);object-fit:contain;background:#fff;box-shadow:0 18px 50px -20px rgba(40,30,10,.35)}
+body{font-size:14px;background:var(--paper);color:var(--ink);font-family:var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible{outline:1px solid var(--ink);outline-offset:3px}
+
+/* ---------- stage ---------- */
+#stage{position:fixed;inset:0;touch-action:pan-y;user-select:none}
+.card{position:absolute;left:0;top:0;overflow:hidden;background:#000;
+  transition:transform .9s var(--ease),width .9s var(--ease),height .9s var(--ease),opacity .6s ease;
+  will-change:transform}
+.card:focus-visible{outline:1px solid var(--ink);outline-offset:4px}
+.card .art{position:absolute;inset:0}
+.card .word{position:absolute;left:0;right:0;top:48%;text-align:center;color:#fff;
+  font-size:calc(7.4px*var(--k));letter-spacing:.62em;padding-left:.62em;text-transform:uppercase;font-weight:500;
+  opacity:0;transition:opacity .5s ease .35s;text-shadow:0 0 12px rgba(0,0,0,.35);white-space:nowrap}
+.card.is-active .word{opacity:1}
+.card .hint{position:absolute;right:6%;bottom:5%;color:#fff;font-size:calc(6px*var(--k));letter-spacing:.08em;opacity:0;transition:opacity .3s}
+.card.is-active:hover .hint{opacity:.85}
+
+/* covers */
+.a1{background:linear-gradient(115deg,#0d22e0 0%,#2f5cff 35%,#7fc2ff 72%,#dff1ff 100%)}
+.a1 i{position:absolute;left:18%;top:22%;width:78%;height:46%;border-radius:50%;
+  background:radial-gradient(circle at 55% 50%,#030a52 0 14%,#1c3bd6 26%,#5a8cff 44%,transparent 66%);filter:blur(calc(5px*var(--k)))}
+.a2{background:radial-gradient(ellipse 70% 55% at 50% 22%,#ff7a3a 0,#c7270f 30%,#3a0906 62%,#070303 85%)}
+.a2 i{position:absolute;left:30%;top:18%;width:40%;height:34%;border-radius:48% 48% 44% 44%;background:#050303;
+  box-shadow:0 0 calc(6px*var(--k)) calc(1px*var(--k)) #ff5a1f}
+.a2 b{position:absolute;left:4%;right:4%;top:47%;bottom:-20%;border-radius:48% 48% 0 0;background:#060404}
+.a3{background:#050505}
+.a3 i{position:absolute;left:3%;top:10%;width:84%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 40% 40%,#ff9a9a 0,#ef4b4b 45%,#c21f24 80%)}
+.a3 b{position:absolute;left:30%;top:26%;width:12%;height:30%;border-radius:40% 40% 20% 20%;background:rgba(30,6,6,.8);filter:blur(1px)}
+.a4{background:#030303}
+.a4 i,.a4 b,.a4 u{position:absolute;left:40%;top:40%;width:20%;height:46%;border-radius:50% 50% 50% 50%/70% 70% 30% 30%;
+  background:linear-gradient(#f4f4f4,#8d8d8d);transform-origin:50% 100%}
+.a4 i{transform:translate(-10%,-50%) rotate(-28deg)}
+.a4 b{transform:translate(-10%,-50%) rotate(6deg);filter:brightness(.8)}
+.a4 u{transform:translate(-10%,-50%) rotate(38deg);filter:brightness(.6)}
+.a5{background:#040604}
+.a5 i{position:absolute;left:-46%;top:14%;width:112%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 62% 45%,#e5ffd8 0,#9fe38a 28%,#3f9a3c 62%,#133f14 100%);box-shadow:0 0 calc(14px*var(--k)) #5fcf52}
+.a6{background:radial-gradient(ellipse at 30% 75%,#ffd27a 0,#f08a1c 30%,#8a2a03 65%,#1d0800 100%)}
+.a6 i{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.08) 0 1px,transparent 1px 3px)}
+.a7{background:linear-gradient(160deg,#16062e,#3d0f7a 45%,#b0158f 80%,#ff7ab8)}
+.a7 i{position:absolute;left:10%;top:30%;width:80%;height:40%;border-radius:50%;background:radial-gradient(#ffd0f0,transparent 70%);filter:blur(calc(8px*var(--k)))}
+.a8{background:repeating-radial-gradient(circle at 28% 72%,#141414 0 calc(3px*var(--k)),#d8d6cf calc(3px*var(--k)) calc(4px*var(--k)))}
+
+/* ---------- caption / nav ---------- */
+#cap{position:absolute;display:flex;flex-direction:column;align-items:flex-start;gap:calc(6px*var(--k));
+  font-size:max(11px,calc(9.4px*var(--k)));letter-spacing:.005em;transition:opacity .4s}
+#cap .brand{font-weight:500}
+#ttl{min-width:0;transition:opacity .35s ease;font-weight:500}
+#ttl.swap{opacity:0}
+#cap nav{display:flex;gap:calc(9px*var(--k));flex-wrap:wrap;align-items:baseline}
+#count{margin-left:calc(6px*var(--k))}
+#cap nav button{position:relative}
+#cap nav button::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
+#cap nav button:hover::after{transform:scaleX(1)}
+#count{color:var(--mute);font-variant-numeric:tabular-nums}
+
+/* ---------- corner note (cookie-banner echo) ---------- */
+#note{position:fixed;right:16px;bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;align-items:flex-end;gap:24px;
+  font-size:10.5px;line-height:1.35;max-width:min(420px,calc(100vw - 32px));z-index:5}
+#note p{margin:0;max-width:30ch;color:var(--ink)}
+#note .acts{display:flex;gap:8px;white-space:nowrap}
+#note .acts button:last-child{text-decoration:underline;text-underline-offset:2px}
+
+/* ---------- sheet (details / index / about) ---------- */
+#veil{position:fixed;inset:0;background:rgba(20,20,18,.18);opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:20}
+#veil.on{opacity:1;pointer-events:auto}
+#sheet{position:fixed;left:0;right:0;bottom:0;height:min(88%,860px);background:var(--sheet);z-index:21;
+  transform:translateY(102%);transition:transform .8s var(--ease);overflow:auto;border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+#sheet.on{transform:none}
+.sh-in{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:22px 48px}
+.sh-top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;font-size:11px;position:sticky;top:0;background:var(--sheet);padding-block:14px;z-index:2}
+.sh-top .crumb{color:var(--mute)}
+.close{font-size:11px}
+.close:hover{text-decoration:underline}
+
+.det{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:40px;margin-top:18px}
+.det-cover{position:relative;overflow:hidden;max-width:100%;background:#eee}
+.det h2{font-family:var(--sans);font-weight:500;font-size:clamp(26px,3.4vw,40px);line-height:1.02;letter-spacing:-.02em;margin:0 0 20px;text-wrap:balance}
+.meta{display:grid;grid-template-columns:auto 1fr;column-gap:24px;row-gap:7px;font-size:12px;margin:0 0 22px}
+.meta dt{color:var(--mute)}
+.meta dd{margin:0}
+.lede{font-size:14px;line-height:1.55;max-width:60ch;margin:0 0 26px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:34px}
+.btn{font-size:12px;padding:9px 14px;border:1px solid var(--ink);transition:background .25s,color .25s}
+.btn:hover,.btn.solid{background:var(--ink);color:var(--paper)}
+.btn.solid:hover{background:transparent;color:var(--ink)}
+.lbl{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:0 0 12px;display:flex;justify-content:space-between;gap:12px}
+.shots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.shot{display:block;text-align:left}
+.shot figure{margin:0}
+.shot .frame{transition:transform .5s var(--ease)}
+.shot:hover .frame{transform:translateY(-3px)}
+.shot figcaption{font-size:11px;color:var(--mute);margin-top:6px}
+.sample{font-size:11px;color:var(--mute);margin-top:22px}
+
+/* screenshot placeholders */
+.frame{position:relative;aspect-ratio:16/10;background:#1b1b1d;overflow:hidden;border-radius:2px;max-width:100%}
+.frame .bar{position:absolute;left:0;right:0;top:0;height:8%;background:#101012;display:flex;align-items:center;gap:3%;padding-left:3%}
+.frame .bar s{width:2.2%;aspect-ratio:1;border-radius:50%;background:#444}
+.frame .tb{position:absolute;left:0;right:0;bottom:0;height:10%;background:#101012;display:flex;justify-content:center;align-items:center;gap:3%}
+.frame .tb s{width:4%;height:40%;border-radius:2px;background:#3a3a3e}
+.frame .tb s.red{background:#d63b3b}
+.grid6{position:absolute;left:3%;right:3%;top:11%;bottom:13%;display:grid;grid-template-columns:repeat(3,1fr);gap:2.5%}
+.tile{position:relative;border-radius:2px;display:grid;place-items:center}
+.tile em{font-style:normal;width:30%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:clamp(7px,1.1vw,13px);color:#fff;background:rgba(255,255,255,.18)}
+.tile.me{outline:2px solid #6cd46c;outline-offset:-2px}
+.slide{position:absolute;left:3%;top:11%;width:70%;bottom:13%;background:#f6f5f0;color:#1a1a1a;padding:4%;display:flex;flex-direction:column;justify-content:space-between}
+.slide b{font-size:clamp(8px,1.3vw,16px);line-height:1.1;font-weight:600}
+.slide span{font-size:clamp(6px,.8vw,10px);color:#777}
+.side{position:absolute;right:3%;top:11%;width:22%;bottom:13%;display:grid;grid-template-rows:repeat(3,1fr);gap:4%}
+.room{position:absolute;inset:0;background:linear-gradient(180deg,#d9d2c3 0 38%,#8d7a62 38% 40%,#5d4b39 40%)}
+.room .scr{position:absolute;left:30%;top:9%;width:40%;height:25%;background:#fbfaf5;box-shadow:0 0 18px rgba(255,255,255,.7)}
+.room .heads{position:absolute;left:0;right:0;bottom:0;height:52%;
+  background:radial-gradient(circle at 10% 30%,#2a211a 0 6%,transparent 6.5%),radial-gradient(circle at 26% 34%,#3a2c20 0 6.5%,transparent 7%),
+  radial-gradient(circle at 44% 28%,#1f1813 0 6%,transparent 6.5%),radial-gradient(circle at 62% 36%,#35281d 0 7%,transparent 7.5%),
+  radial-gradient(circle at 80% 30%,#261d15 0 6%,transparent 6.5%),radial-gradient(circle at 94% 38%,#2e241a 0 6.5%,transparent 7%),
+  radial-gradient(circle at 18% 80%,#1a140f 0 9%,transparent 9.5%),radial-gradient(circle at 52% 84%,#221a13 0 10%,transparent 10.5%),radial-gradient(circle at 84% 82%,#1c1510 0 9%,transparent 9.5%)}
+.ph{position:absolute;right:3%;top:3%;font-size:clamp(6px,.75vw,9px);letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.room .ph{color:rgba(0,0,0,.45)}
+
+/* index */
+.idx{list-style:none;margin:18px 0 0;padding:0;border-top:1px solid var(--line)}
+.idx button{width:100%;display:grid;grid-template-columns:3ch minmax(0,1fr) auto;gap:18px;align-items:baseline;text-align:left;padding-block:14px;border-bottom:1px solid var(--line);font-size:clamp(17px,2.4vw,26px);letter-spacing:-.01em;transition:padding .35s var(--ease)}
+.idx button:hover{padding-left:10px}
+.idx .n{font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
+.idx .d{font-size:11px;color:var(--mute);white-space:nowrap}
+.about{max-width:60ch;font-size:15px;line-height:1.6;margin-top:18px}
+.about p{margin:0 0 14px}
+.about-wrap{display:flex;gap:32px;align-items:flex-start;margin-top:18px}
+.about-wrap .about{margin-top:0}
+.about-photo{width:150px;aspect-ratio:7/9;object-fit:cover;flex-shrink:0;display:block}
+@media (max-width:560px){.about-wrap{flex-direction:column;gap:18px}.about-photo{width:120px}}
+
+/* ---------- lightbox ---------- */
+#lb{position:fixed;inset:0;z-index:40;background:rgba(252,251,246,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  padding-inline:16px;padding-block:calc(54px + env(safe-area-inset-top,0px)) 30px;opacity:0;pointer-events:none;transition:opacity .45s ease}
+#lb.on{opacity:1;pointer-events:auto}
+#lb .lb-top{position:absolute;left:16px;right:16px;top:calc(16px + env(safe-area-inset-top,0px));display:flex;justify-content:space-between;font-size:11px;gap:12px}
+#lb .lb-body{width:min(100%,1040px,calc((100vh - 120px) * 1.414));transform:scale(.97);transition:transform .6s var(--ease)}
+#lb.on .lb-body{transform:none}
+#lb .lb-body.shotmode{width:min(100%,1100px,calc((100vh - 120px) * 1.6))}
+#lb .lb-cap{font-size:11px;color:var(--mute);text-align:center}
+#lb .lb-nav{display:flex;gap:14px;font-size:11px}
+
+/* certificate (placeholder render) */
+.cert{container-type:inline-size;position:relative;aspect-ratio:1.414/1;background:#fffdf7;color:#1f1b14;overflow:hidden;max-width:100%;
+  box-shadow:0 1px 0 rgba(0,0,0,.04),0 18px 50px -20px rgba(40,30,10,.35)}
+.cert .bd{position:absolute;inset:3.2cqw;border:.25cqw solid #b9a46a;outline:.08cqw solid #b9a46a;outline-offset:-1cqw}
+.cert .in{position:absolute;inset:6cqw;display:flex;flex-direction:column;align-items:center;text-align:center}
+.cert .org{font-family:var(--sans);font-size:1.25cqw;letter-spacing:.34em;text-transform:uppercase;color:#6f6247}
+.cert h3{font-family:var(--serif);font-weight:600;font-size:5.2cqw;line-height:1;margin:2.2cqw 0 .4cqw;letter-spacing:.01em}
+.cert .sub{font-family:var(--sans);font-size:1.3cqw;letter-spacing:.3em;text-transform:uppercase;color:#6f6247}
+.cert .t1{font-family:var(--serif);font-style:italic;font-size:2cqw;margin-top:3.4cqw}
+.cert .nm{font-family:var(--serif);font-size:5.4cqw;font-weight:500;margin-top:.6cqw;padding:0 4cqw .6cqw;border-bottom:.1cqw solid #b9a46a}
+.cert .t2{font-family:var(--serif);font-style:italic;font-size:1.9cqw;margin-top:2cqw}
+.cert .sem{font-family:var(--sans);font-weight:600;font-size:2.3cqw;margin-top:.8cqw;max-width:80%;line-height:1.2}
+.cert .when{font-family:var(--sans);font-size:1.35cqw;margin-top:1cqw;color:#5a503c}
+.cert .sig{margin-top:auto;width:84%;display:flex;justify-content:space-between;align-items:flex-end}
+.cert .sig div{width:30%;border-top:.1cqw solid #1f1b14;padding-top:.7cqw;font-family:var(--sans);font-size:1.15cqw}
+.cert .sig small{display:block;color:#7a6f58;font-size:1cqw;margin-top:.2cqw}
+.cert .seal{width:9cqw;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#d8c07c 0 55%,#b9a46a 56% 62%,#d8c07c 63%);display:grid;place-items:center;
+  font-family:var(--serif);font-size:1.3cqw;color:#5a4a1f;letter-spacing:.1em}
+.cert .wm{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;font-family:var(--sans);font-weight:600;font-size:13cqw;letter-spacing:.2em;color:rgba(185,164,106,.12);transform:rotate(-18deg)}
+
+@media (max-width:720px){
+  .det{grid-template-columns:minmax(0,1fr);gap:22px}
+  .shots{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #note{flex-direction:column;align-items:flex-start;gap:8px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div id="stage" aria-label="Seminar certificates"></div>
+<div id="cap">
+  <span id="ttl"></span>
+  <nav>
+    <button type="button" data-act="details">Details</button>
+    <button type="button" data-act="cert">Certificate</button>
+    <button type="button" data-act="index">Index</button>
+    <button type="button" data-act="about">About</button>
+    <span id="count"></span>
+  </nav>
+</div>
+
+<div id="note" role="note">
+  <p>This site collects seminar certificates. Click any image to slide it forward, click it again to open its details and attendance screenshots.</p>
+  <div class="acts"><button type="button" data-act="index">Index</button><button type="button" id="gotit">Got it</button></div>
+</div>
+
+<div id="veil"></div>
+<section id="sheet" aria-modal="true" role="dialog" aria-label="Panel"><div class="sh-in" id="sheetIn"></div></section>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Viewer">
+  <div class="lb-top"><span id="lbTitle"></span><button type="button" class="close" id="lbClose">Close ✕</button></div>
+  <div class="lb-body" id="lbBody"></div>
+  <div class="lb-cap" id="lbCap"></div>
+  <div class="lb-nav" id="lbNav"></div>
+</div>
+
+<script>
+/* ===== YOUR CONTENT — EDIT HERE =====================================
+   Put your image files in the "images" folder next to this file, then fill in:
+
+   cover       : OPTIONAL picture for the sliding card, e.g. "images/cover-1.jpg"
+                 If left "", the card shows your certificate image instead.
+   certificate : scan/photo of the full certificate, e.g. "images/cert-1.jpg"
+                 Used for the "View full certificate" button AND as the card picture.
+                 (while both are "", the card shows colour placeholder art)
+   shots       : attendance screenshots. Each item is either
+                   - an image path: "images/seminar1-shot1.jpg"
+                   - or { src:"images/seminar1-shot1.jpg", caption:"Zoom attendance" }
+                 Any number of shots is fine. Placeholder words "call", "slides",
+                 "room" draw the demo images; delete them once you add real ones.
+   To remove a seminar, delete its whole { ... } block (7 cards works fine).
+   ==================================================================== */
+const OWNER = "Pauline Joy";
+/* Card shape on the homepage:
+   "auto"      = each card matches its own image (landscape image = landscape card)
+   "landscape" = every card landscape (certificate shape)
+   "portrait"  = every card tall, like the original inspo */
+const CARD_SHAPE = "auto";
+const SEMINARS = [
+  {short:"Hosting", title:"Deploy your Website: Hosting Domain and Cloud Deployment", organizer:"Ethel Verena", speaker:"Mr. Kevin Yu", date:"21 August 2026", mode:"Online · Webinar", hours:"4 hours", art:"a1",
+   cover:"", certificate:"images/inot.png",
+   about:"Learn how websites are hosted, connected to domains, and deployed to the cloud.",
+   shots:["images/inot-1.png","images/inot-2.png","images/inot-3.png"]},
+
+  {short:"Security", title:"Cybersecurity in IOS and Android Applications Development", organizer:"Ethel Verena", speaker:"Ms. Ethel Grace Verena ", date:"23 August 2026", mode:"Online · Webinar", hours:"1hr 30 minutes", art:"a2",
+   cover:"", certificate:"images/panduwa.png",
+   about:"Learn how to protect iOS and Android applications from security threats and vulnerabilities.",
+   shots:["images/panduwa-1.png","images/panduwa-2.png","images/panduwa-3.png"]},
+
+  {short:"Versioning", title:"Build, Commit, Deploy: Mastering Mobile Development with GitHub", organizer:"Ethel Verena", speaker:"Mr. Maeron Joseph Reyes ", date:"20 August 2026", mode:"Online · Webinar", hours:"1 hour", art:"a3",
+   cover:"", certificate:"images/pangtulo.png",
+   about:"Learn how GitHub helps manage, track, and deploy changes in mobile development projects.",
+   shots:["images/pangtulo-1.png","images/pangtulo-2.png","images/pangtulo-3.png"]},
+
+  {short:"Automation", title:"IOT Building Smarter Tools Connected System with AI Tools ", organizer:"Ethel Verena", speaker:"Mr. Chris Tongohan", date:"21 August 2026", mode:"Online · Webinar", hours:"1 hour", art:"a4",
+   cover:"", certificate:"images/pangapat.png",
+   about:"Learn how IoT and AI can work together to create smarter and connected systems.",
+   shots:["images/pangapat-1.png","images/pangapat-2.png","images/pangapat-3.png"]},
+
+  {short:"Innovation", title:"Smart Tech Revolution: IOT, AI and Multimedia", organizer:"Ethel Verena", speaker:"Mr. Ryan Jerffrey Ricafort", date:"9 August 2025", mode:"Online · Webinar", hours:"1 hour", art:"a5",
+   cover:"", certificate:"images/panglima.png",
+   about:"Explore how IoT, AI, and multimedia technologies are combined to create smart solutions.",
+   shots:["images/panglima-1.png","images/panglima-2.pngcall","images/panglima-3.png"]},
+
+  {short:"Productivity", title:"AI Prompting Engineering: Transforming Communication and Productivity in the Modern Workplace", organizer:"Ethel Verena", speaker:"Mr. Marcus Verzo", date:"22 August 2026", mode:"Online · Webinar", hours:"1 hour", art:"a6",
+   cover:"", certificate:"images/panganom.png",
+   about:"Learn how AI prompting can improve communication, work efficiency, and everyday tasks.",
+   shots:["images/panganom-1.png","images/panganom-2.png","images/panganom-3.png"]},
+
+  {short:"Marketing", title:"AI Tools for Digital Marketing and Media Literature", organizer:"Ethel Verena", speaker:"Mr. John Bert Villarosa", date:"22 August 2026", mode:"Online · Webinar", hours:"1 hour", art:"a7",
+   cover:"", certificate:"images/pangpito.png",
+   about:"Learn how AI tools can support digital marketing, content creation, and media work.",
+   shots:["images/pangpito-1.png","images/pangpito-2.png","images/pangpito-3.png"]}
+];
+/* ==================================== */
+
+const $ = s => document.querySelector(s);
+const stage = $("#stage"), cap = $("#cap"), ttl = $("#ttl"), count = $("#count");
+let active = 1, k = 1, lastStep = 0;
+
+const artInner = a => ({a1:"<i></i>",a2:"<i></i><b></b>",a3:"<i></i><b></b>",a4:"<i></i><b></b><u></u>",a5:"<i></i>",a6:"<i></i>",a7:"<i></i>",a8:""}[a]||"");
+/* The card picture: your "cover" if set, otherwise your "certificate", otherwise placeholder art */
+const coverSrc = s => s.cover || s.certificate || "";
+const coverHTML = (s) => coverSrc(s) ? `<div class="art"><img src="${coverSrc(s)}" alt=""></div>` : `<div class="art ${s.art}">${artInner(s.art)}</div>`;
+
+/* width ÷ height of each card */
+const ratios = SEMINARS.map(()=> CARD_SHAPE==="portrait" ? 0.75 : 1.414);
+const cards = SEMINARS.map((s,i)=>{
+  const b = document.createElement("button");
+  b.type="button"; b.className="card"; b.setAttribute("aria-label", s.title);
+  b.innerHTML = coverHTML(s) + (coverSrc(s) ? "" : `<span class="word">${s.short}</span>`) + `<span class="hint">Details →</span>`;
+  b.addEventListener("click", e=>{ if(dragged){e.preventDefault();return;} i===active ? openDetails(i) : go(i); });
+  const img = b.querySelector("img");
+  if(img && CARD_SHAPE==="auto"){
+    const set=()=>{ if(img.naturalWidth){ ratios[i]=img.naturalWidth/img.naturalHeight; requestAnimationFrame(layout); } };
+    img.complete ? set() : img.addEventListener("load", set);
+  }
+  stage.appendChild(b); return b;
+});
+
+/* cascade measured off the inspo (heights + vertical steps), scaled by k */
+const RH=[190,155,117,95,74,58,46,38], RY=[0,43,100,147,190,225,250,270];
+const LH=[182,140,104,78,60,48,38],    LY=[10,36,64,88,104,116,124];
+const FR=[.78,.85,.91,.92,.93,.94,.94];
+const size = (H,Y,r) => { const h=H*Math.sqrt(.75/r); return {h, w:h*r, y:Y+(H-h)*.5}; };
+/* positions for every card, given which one is in front and a ratio lookup */
+function geoAll(act, rat, n=SEMINARS.length){
+  const out=[];
+  const at=i=>{ const d=i-act, a=Math.abs(d);
+    return d>=0 ? size(RH[Math.min(d,7)],RY[Math.min(d,7)],rat(i)) : size(LH[Math.min(a-1,6)],LY[Math.min(a-1,6)],rat(i)); };
+  const g0=at(act); out[act]={...g0,x:0,o:1,z:60};
+  for(let i=act+1;i<n;i++){ const d=i-act, g=at(i); g.x=out[i-1].x+out[i-1].w*FR[Math.min(d-1,6)]; g.o=d<=4?1:0; g.z=60-d*2; out[i]=g; }
+  for(let i=act-1;i>=0;i--){ const a=act-i, g=at(i); g.x = a===1 ? 6-g.w : out[i+1].x-g.w*.72; g.o=a<=2?1:0; g.z=59-a*2; out[i]=g; }
+  return out;
+}
+function layout(){
+  const vw=innerWidth, vh=innerHeight;
+  /* reference layout (typical shape, middle card in front) keeps size + anchor stable while sliding */
+  const sorted=[...ratios].sort((a,b)=>a-b), rRef=sorted[Math.floor(sorted.length/2)];
+  const refAll=geoAll(2, ()=>rRef, 9), capX=refAll[1].x;
+  const ref=refAll.filter(g=>g&&g.o);
+  const minX=Math.min(...ref.map(g=>g.x)), maxX=Math.max(...ref.map(g=>g.x+g.w));
+  const maxB=Math.max(...ref.map(g=>g.y+g.h));
+  k = Math.min((vw-32)/(maxX-minX) * (vw<700?1:.72), (vh-150)/(maxB+70), 2.4);
+  k = Math.max(.4,k);
+  document.documentElement.style.setProperty("--k",Math.max(.75,k));
+  const ax = vw/2 - (minX+maxX)/2*k;
+  const top = Math.max(40, Math.min(vh*.12, (vh-(maxB+70)*k)/2));
+  const G=geoAll(active, i=>ratios[i]);
+  cards.forEach((c,i)=>{
+    const g=G[i];
+    c.style.transform=`translate3d(${ax+g.x*k}px,${top+g.y*k}px,0)`;
+    c.style.width=g.w*k+"px"; c.style.height=g.h*k+"px";
+    c.style.opacity=g.o; c.style.zIndex=g.z; c.style.pointerEvents=g.o?"auto":"none";
+    c.tabIndex=g.o?0:-1;
+    c.classList.toggle("is-active",i===active);
+  });
+  const A=G[active];
+  cap.style.left=Math.max(16, ax+capX*k+6*k)+"px";
+  cap.style.top=(top+(A.y+A.h+46)*k)+"px";
+  cap.style.maxWidth=(vw-32)+"px";
+}
+function go(i){
+  i=Math.max(0,Math.min(SEMINARS.length-1,i));
+  if(i===active) return;
+  active=i; layout();
+  ttl.classList.add("swap");
+  setTimeout(()=>{ setCaption(); ttl.classList.remove("swap"); },280);
+}
+function setCaption(){
+  ttl.textContent=SEMINARS[active].title+".";
+  count.textContent=String(active+1).padStart(2,"0")+"/"+String(SEMINARS.length).padStart(2,"0");
+}
+
+/* swipe / drag / wheel */
+let px=null, dragged=false;
+stage.addEventListener("pointerdown",e=>{px=e.clientX;dragged=false;});
+addEventListener("pointermove",e=>{ if(px!==null && Math.abs(e.clientX-px)>12) dragged=true; });
+addEventListener("pointerup",e=>{
+  if(px===null) return; const dx=e.clientX-px; px=null;
+  if(Math.abs(dx)>45) go(active+(dx<0?1:-1));
+  setTimeout(()=>dragged=false,0);
+});
+stage.addEventListener("wheel",e=>{
+  const v=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
+  if(Math.abs(v)<8) return; const now=Date.now(); if(now-lastStep<650) return;
+  lastStep=now; go(active+(v>0?1:-1));
+},{passive:true});
+
+/* ---------- placeholders for screenshots ---------- */
+const tones=["#3b4a5c","#5a3f3a","#344f3f","#4b3f5c","#5c533a","#2f4f57"];
+const initials=["PJ","AR","MK","JS","LT","RC"];
+const isImg = t => typeof t==="object" || /\.(png|jpe?g|webp|gif|avif|svg)$/i.test(t);
+const shotSrc = t => typeof t==="object" ? t.src : t;
+const shotCap = t => typeof t==="object" && t.caption ? t.caption : (isImg(t) ? "Screenshot" : shotLabel[t]);
+function shotHTML(type,s,n){
+  if(isImg(type)) return `<div class="frame real"><img src="${shotSrc(type)}" alt="${shotCap(type)}" loading="lazy"></div>`;
+  if(type==="room") return `<div class="frame"><div class="room"><div class="scr"></div><div class="heads"></div></div><span class="ph">Photo placeholder</span></div>`;
+  if(type==="slides") return `<div class="frame"><div class="bar"><s></s><s></s><s></s></div>
+    <div class="slide"><b>${s.title}</b><span>${s.speaker} · ${s.date}</span></div>
+    <div class="side">${[0,1,2].map(j=>`<div class="tile ${j===1?"me":""}" style="background:${tones[(n+j)%6]}"><em>${initials[j===1?0:(n+j+1)%6]}</em></div>`).join("")}</div>
+    <div class="tb"><s></s><s></s><s class="red"></s><s></s></div><span class="ph">Screenshot placeholder</span></div>`;
+  return `<div class="frame"><div class="bar"><s></s><s></s><s></s></div>
+    <div class="grid6">${[0,1,2,3,4,5].map(j=>`<div class="tile ${j===(n%6)?"me":""}" style="background:${tones[(n*2+j)%6]}"><em>${j===(n%6)?"PJ":initials[(j+n)%6==0?1:(j+n)%6]}</em></div>`).join("")}</div>
+    <div class="tb"><s></s><s></s><s class="red"></s><s></s></div><span class="ph">Screenshot placeholder</span></div>`;
+}
+const shotLabel={call:"Attendance · video call",slides:"During the talk",room:"On site"};
+
+function certHTML(s){
+  if(s.certificate) return `<img class="certimg" src="${s.certificate}" alt="Certificate — ${s.title}">`;
+  return `<div class="cert"><div class="bd"></div><div class="wm">SAMPLE</div><div class="in">
+    <div class="org">${s.organizer}</div>
+    <h3>Certificate</h3><div class="sub">of Participation</div>
+    <div class="t1">This certifies that</div>
+    <div class="nm">${OWNER}</div>
+    <div class="t2">has attended and completed the seminar</div>
+    <div class="sem">${s.title}</div>
+    <div class="when">${s.date} · ${s.mode} · ${s.hours}</div>
+    <div class="sig"><div>${s.speaker}<small>Resource speaker</small></div><span class="seal">SEAL</span><div>${s.organizer}<small>Organizer</small></div></div>
+  </div></div>`;
+}
+
+/* ---------- sheet ---------- */
+const sheet=$("#sheet"), sheetIn=$("#sheetIn"), veil=$("#veil");
+function openSheet(html,crumb){
+  sheetIn.innerHTML=`<div class="sh-top"><span class="crumb">${crumb}</span><button type="button" class="close" data-close>Close ✕</button></div>`+html;
+  sheet.scrollTop=0; sheet.classList.add("on"); veil.classList.add("on");
+  sheetIn.querySelector("[data-close]").addEventListener("click",closeSheet);
+  setTimeout(()=>sheetIn.querySelector("[data-close]").focus({preventScroll:true}),50);
+}
+function closeSheet(){ sheet.classList.remove("on"); veil.classList.remove("on"); }
+veil.addEventListener("click",closeSheet);
+
+function openDetails(i){
+  const s=SEMINARS[i]; if(i!==active) go(i);
+  const html=`<div class="det">
+    <div><div class="det-cover" style="aspect-ratio:${ratios[i]}">${coverHTML(s)}</div></div>
+    <div>
+      <h2>${s.title}</h2>
+      <dl class="meta">
+        <dt>Date</dt><dd>${s.date}</dd>
+        <dt>Format</dt><dd>${s.mode}</dd>
+        <dt>Duration</dt><dd>${s.hours}</dd>
+        <dt>Speaker</dt><dd>${s.speaker}</dd>
+        <dt>Organizer</dt><dd>${s.organizer}</dd>
+      </dl>
+      <p class="lede">${s.about}</p>
+      <div class="row">
+        <button type="button" class="btn solid" data-cert>View full certificate</button>
+        <button type="button" class="btn" data-next>Next seminar →</button>
+      </div>
+      <p class="lbl"><span>Attendance screenshots</span><span>${s.shots.length} images</span></p>
+      <div class="shots">${s.shots.map((t,n)=>`<button type="button" class="shot" data-shot="${n}"><figure>${shotHTML(t,s,n+i)}<figcaption>${String(n+1).padStart(2,"0")} — ${shotCap(t)}</figcaption></figure></button>`).join("")}</div>
+    </div></div>`;
+  openSheet(html,`${String(i+1).padStart(2,"0")} / ${String(SEMINARS.length).padStart(2,"0")} — Details`);
+  sheetIn.querySelector("[data-cert]").addEventListener("click",()=>openCert(i));
+  sheetIn.querySelector("[data-next]").addEventListener("click",()=>openDetails((i+1)%SEMINARS.length));
+  sheetIn.querySelectorAll("[data-shot]").forEach(b=>b.addEventListener("click",()=>openShot(i,+b.dataset.shot)));
+}
+function openIndex(){
+  const html=`<ul class="idx">${SEMINARS.map((s,i)=>`<li><button type="button" data-go="${i}"><span class="n">${String(i+1).padStart(2,"0")}</span><span>${s.title}</span><span class="d">${s.date}</span></button></li>`).join("")}</ul>`;
+  openSheet(html,`Index — ${SEMINARS.length} certificates`);
+  sheetIn.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>{closeSheet();go(+b.dataset.go);}));
+}
+function openAbout(){
+  const y1 = SEMINARS[0].date.split(" ").pop(), y2 = SEMINARS[SEMINARS.length-1].date.split(" ").pop();
+  openSheet(`<div class="about-wrap">
+    <img class="about-photo" src="images/AKO.jpg" alt="${OWNER}">
+    <div class="about">
+      <p>I keep a record of the seminars and trainings I attended in 2026, covering different areas of technology and digital skills. These include website deployment and cloud hosting, mobile application cybersecurity, GitHub and mobile development, IoT and AI, smart technologies and multimedia, AI prompting, and AI tools for digital marketing and media.</p>
+      <p>Each image in the stack represents one of the seminars I attended. Click an image to bring it forward, then open its details to view the attendance screenshot and full certificate.</p>
+      <p style="color:var(--mute);font-size:13px">${SEMINARS.length} certificates · ${y1===y2 ? y1 : y1+"–"+y2}</p>
+    </div>
+  </div>`,"About");
+}
+
+/* ---------- lightbox ---------- */
+const lb=$("#lb"), lbBody=$("#lbBody"), lbCap=$("#lbCap"), lbNav=$("#lbNav"), lbTitle=$("#lbTitle");
+function openLB(){ lb.classList.add("on"); setTimeout(()=>$("#lbClose").focus({preventScroll:true}),50); }
+function closeLB(){ lb.classList.remove("on"); }
+$("#lbClose").addEventListener("click",closeLB);
+function openCert(i){
+  const s=SEMINARS[i];
+  lbBody.className="lb-body"; lbBody.innerHTML=certHTML(s);
+  lbTitle.textContent=`Certificate — ${s.title}`;
+  lbCap.textContent=s.certificate ? `${s.organizer} · ${s.date}` : "";
+  lbNav.innerHTML=`<button type="button" data-p>← Previous</button><button type="button" data-n>Next →</button>`;
+  lbNav.querySelector("[data-p]").onclick=()=>openCert((i-1+SEMINARS.length)%SEMINARS.length);
+  lbNav.querySelector("[data-n]").onclick=()=>openCert((i+1)%SEMINARS.length);
+  openLB();
+}
+function openShot(i,n){
+  const s=SEMINARS[i], t=s.shots[n];
+  lbBody.className="lb-body shotmode"; lbBody.innerHTML=shotHTML(t,s,n+i);
+  lbTitle.textContent=s.title;
+  lbCap.textContent=`${String(n+1).padStart(2,"0")} / ${String(s.shots.length).padStart(2,"0")} — ${shotCap(t)}`;
+  lbNav.innerHTML=`<button type="button" data-p>← Previous</button><button type="button" data-n>Next →</button>`;
+  lbNav.querySelector("[data-p]").onclick=()=>openShot(i,(n-1+s.shots.length)%s.shots.length);
+  lbNav.querySelector("[data-n]").onclick=()=>openShot(i,(n+1)%s.shots.length);
+  openLB();
+}
+
+/* ---------- nav actions ---------- */
+document.querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click",()=>{
+  const a=b.dataset.act;
+  if(a==="details") openDetails(active);
+  if(a==="cert") openCert(active);
+  if(a==="index") openIndex();
+  if(a==="about") openAbout();
+}));
+const note=$("#note");
+try{ if(localStorage.getItem("cs-note")==="1") note.hidden=true; }catch(e){}
+$("#gotit").addEventListener("click",()=>{ note.hidden=true; try{localStorage.setItem("cs-note","1");}catch(e){} });
+
+addEventListener("keydown",e=>{
+  if(e.key==="Escape"){ if(lb.classList.contains("on")) closeLB(); else closeSheet(); return; }
+  if(lb.classList.contains("on")){
+    if(e.key==="ArrowRight") lbNav.querySelector("[data-n]")?.click();
+    if(e.key==="ArrowLeft") lbNav.querySelector("[data-p]")?.click();
+    return;
+  }
+  if(sheet.classList.contains("on")) return;
+  if(e.key==="ArrowRight") go(active+1);
+  if(e.key==="ArrowLeft") go(active-1);
+});
+addEventListener("resize",layout);
+setCaption(); layout();
+</script>
+</body>
+</html>
